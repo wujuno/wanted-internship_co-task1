@@ -1,18 +1,10 @@
 import styled from '@emotion/styled';
-import {
-  Box,
-  Button,
-  Container,
-  IconButton,
-  Input,
-  Paper,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Container, IconButton, Input, Paper, Typography } from '@mui/material';
 import axios from 'axios';
 import { useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import SearchIcon from '@mui/icons-material/Search';
 
 const Form = styled.form`
   display: flex;
@@ -29,7 +21,7 @@ const SearchConditionBox = styled(Paper)`
   padding: 1rem;
   left: 0;
   right: 0;
-  top: 4rem;
+  top: 4.5rem;
 `;
 
 type rSearchDataType = {
@@ -40,6 +32,7 @@ type rSearchDataType = {
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [rSearchData, setRSearchData] = useState<rSearchDataType[] | null>(null);
+  const [value, setValue] = useState('');
 
   const getSearchData = (e: React.ChangeEvent<HTMLInputElement>) => {
     axios
@@ -93,7 +86,10 @@ function App() {
               <Box sx={{ overflowY: 'auto', maxHeight: '300px' }}>
                 <ul>
                   {rSearchData.map(list => (
-                    <Typography key={list.id}>{list.name}</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <SearchIcon fontSize="small" />
+                      <span key={list.id}>{list.name}</span>
+                    </Box>
                   ))}
                 </ul>
               </Box>
