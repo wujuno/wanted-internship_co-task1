@@ -18,10 +18,19 @@ const Form = styled.form`
 const SearchConditionBox = styled(Paper)`
   position: absolute;
   margin: auto;
-  padding: 1rem;
   left: 0;
   right: 0;
   top: 4.5rem;
+`;
+const ListBox = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  gap: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(227, 226, 226, 0.3);
+  }
 `;
 
 type rSearchDataType = {
@@ -34,15 +43,24 @@ function App() {
   const [rSearchData, setRSearchData] = useState<rSearchDataType[] | null>(null);
   const [value, setValue] = useState('');
 
-  const getSearchData = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.currentTarget.value);
+    getSearchData(e.currentTarget.value);
+  };
+
+  const getSearchData = (term: string) => {
     axios
-      .get(`/api/v1/search-conditions/?name=${e.currentTarget.value}`)
+      .get(`/api/v1/search-conditions/?name=${term}`)
       .then(res => {
         //[FIXME]숫자 상수화 하기
         if (res.status === 200) return setRSearchData(res.data.slice(0, 7));
       })
       .catch(err => console.log(err));
   };
+  const handleSelectSearchTerm = (name: string) => {
+    setValue(name);
+  };
+
   return (
     <Container
       maxWidth="sm"
@@ -66,9 +84,12 @@ function App() {
             sx={{ width: '370px' }}
             placeholder="질환명을 입력해 주세요."
             autoFocus
-            onChange={getSearchData}
+            value={value}
+            onChange={handleInputChange}
             onFocus={() => setIsOpen(true)}
-            onBlur={() => setIsOpen(false)}
+            onBlur={() => {
+              setTimeout(() => setIsOpen(false), 200);
+            }}
           />
           <IconButton>
             <CancelIcon />
@@ -79,20 +100,25 @@ function App() {
         </Form>
         {isOpen && (
           <SearchConditionBox>
-            <Typography variant="caption" color="#999DA1">
-              추천 검색어
-            </Typography>
-            {rSearchData && (
+            <Box sx={{ mt: '1em', ml: '1em' }}>
+              <Typography variant="caption" color="#999DA1">
+                추천 검색어
+              </Typography>
+            </Box>
+            {/* [FIXME] 값이 없거나 '' 일때로 수정 */}
+            {rSearchData ? (
               <Box sx={{ overflowY: 'auto', maxHeight: '300px' }}>
                 <ul>
                   {rSearchData.map(list => (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <SearchIcon fontSize="small" />
-                      <span key={list.id}>{list.name}</span>
-                    </Box>
+                    <ListBox key={list.id} onClick={() => handleSelectSearchTerm(list.name)}>
+                      <SearchIcon sx={{ ml: '1em' }} fontSize="small" />
+                      <span>{list.name}</span>
+                    </ListBox>
                   ))}
                 </ul>
               </Box>
+            ) : (
+              <Typography>검색어가 없음.</Typography>
             )}
           </SearchConditionBox>
         )}
