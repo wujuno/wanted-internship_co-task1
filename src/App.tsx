@@ -3,16 +3,24 @@ import { Box, Container, IconButton, Input, Paper, Typography } from '@mui/mater
 import axios from 'axios';
 import { useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded';
 import SearchIcon from '@mui/icons-material/Search';
 
-const Form = styled.form`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 20px;
-  border: 2px solid #8aa9f9;
-  border-radius: 99px;
+const HeadTitle = styled.div`
+  padding: 0 4rem;
+  margin-bottom: 2rem;
+`;
+
+const FormWrapper = styled.div`
+  position: relative;
+  form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 20px 5px 30px;
+    border: 2px solid #8aa9f9;
+    border-radius: 99px;
+  }
 `;
 
 const SearchConditionBox = styled(Paper)`
@@ -20,7 +28,7 @@ const SearchConditionBox = styled(Paper)`
   margin: auto;
   left: 0;
   right: 0;
-  top: 4.5rem;
+  top: 5rem;
 `;
 const ListBox = styled.div`
   display: flex;
@@ -31,6 +39,11 @@ const ListBox = styled.div`
   &:hover {
     background-color: rgba(227, 226, 226, 0.3);
   }
+`;
+
+const NoneSeachTermBox = styled.div`
+  height: 40px;
+  padding: 8px 1rem;
 `;
 
 type rSearchDataType = {
@@ -45,15 +58,42 @@ function App() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.currentTarget.value);
-    getSearchData(e.currentTarget.value);
+    handleData(e.currentTarget.value);
   };
-
-  const getSearchData = (term: string) => {
+  const handleData = (term: string) => {
+    const storedData = localStorage.getItem(term);
+    if (storedData) {
+      const { data } = JSON.parse(storedData);
+      setRSearchData(data);
+    } else {
+      getSearchDataAPI(term);
+    }
+  };
+  //[FIXME] : expirationInMinutes = 상수화
+  function setDataToLocalStorage(key: string, data: rSearchDataType[]) {
+    const expirationInMinutes = 60;
+    const expireAt = new Date().getTime() + expirationInMinutes * 60 * 1000;
+    const dataToStore = {
+      data,
+      expireAt
+    };
+    localStorage.setItem(key, JSON.stringify(dataToStore));
+  }
+  const getSearchDataAPI = (term: string) => {
     axios
       .get(`/api/v1/search-conditions/?name=${term}`)
       .then(res => {
         //[FIXME]숫자 상수화 하기
-        if (res.status === 200) return setRSearchData(res.data.slice(0, 7));
+        if (res.status === 200) {
+          const storedData = localStorage.getItem(term);
+          if (!storedData) {
+            if (res.data.length > 0) {
+              setRSearchData(res.data.slice(0, 7));
+              setDataToLocalStorage(term, res.data.slice(0, 7));
+            }
+            console.info('calling api');
+          }
+        }
       })
       .catch(err => console.log(err));
   };
@@ -73,13 +113,13 @@ function App() {
         height: '100vh'
       }}
     >
-      <Box sx={{ p: '0 4em', mb: '2em' }}>
+      <HeadTitle>
         <Typography variant="h4" align="center" lineHeight="50px">
           국내 모든 임상 시험 검색하고 온라인으로 참여하기
         </Typography>
-      </Box>
-      <Box sx={{ position: 'relative' }}>
-        <Form onSubmit={() => alert('검색기능이 구현되지 않았습니다.')}>
+      </HeadTitle>
+      <FormWrapper>
+        <form onSubmit={() => alert('검색기능이 구현되지 않았습니다.')}>
           <Input
             disableUnderline={true}
             sx={{ width: '370px' }}
@@ -92,13 +132,17 @@ function App() {
               setTimeout(() => setIsOpen(false), 200);
             }}
           />
-          <IconButton>
-            <CancelIcon />
-          </IconButton>
+          {value ? (
+            <IconButton onClick={() => setValue('')}>
+              <CancelIcon fontSize="small" />
+            </IconButton>
+          ) : (
+            <div style={{ width: '34.7px' }} />
+          )}
           <IconButton type="submit">
-            <ManageSearchIcon />
+            <ManageSearchRoundedIcon sx={{ fontSize: '40px' }} color="primary" />
           </IconButton>
-        </Form>
+        </form>
         {isOpen && (
           <SearchConditionBox>
             <Box sx={{ mt: '1em', ml: '1em' }}>
@@ -119,11 +163,13 @@ function App() {
                 </ul>
               </Box>
             ) : (
-              <Typography>검색어가 없음.</Typography>
+              <NoneSeachTermBox>
+                <span>검색어 없음</span>
+              </NoneSeachTermBox>
             )}
           </SearchConditionBox>
         )}
-      </Box>
+      </FormWrapper>
     </Container>
   );
 }
