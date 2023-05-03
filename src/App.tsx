@@ -73,7 +73,7 @@ function App() {
               }
               onFocus={() => setIsOpen(true)}
               onBlur={() => {
-                setTimeout(() => setIsOpen(true), 200);
+                setTimeout(() => setIsOpen(false), 200);
               }}
             />
             {value ? (
