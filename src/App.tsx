@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
-import { Box, Container, IconButton, Input, Paper, Typography } from '@mui/material';
+import { Container, IconButton, Input } from '@mui/material';
 import { useEffect, useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded';
-import SearchIcon from '@mui/icons-material/Search';
 import { rSearchDataType } from './types/searchData';
 import { checkLocalStorageExpiration, handleData } from './utils/searchData';
+import SearchCondition from './components/searchCondition';
 
 const Wrapper = styled.div`
   display: flex;
@@ -37,29 +37,6 @@ const FormWrapper = styled.div`
   }
 `;
 
-const SearchConditionBox = styled(Paper)`
-  position: absolute;
-  margin: auto;
-  left: 0;
-  right: 0;
-  top: 5rem;
-`;
-const ListBox = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px 0;
-  gap: 10px;
-  cursor: pointer;
-  &:hover {
-    background-color: rgba(227, 226, 226, 0.3);
-  }
-`;
-
-const NoneSeachTermBox = styled.div`
-  height: 40px;
-  padding: 8px 1rem;
-`;
-
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [rSearchData, setRSearchData] = useState<rSearchDataType[] | null>(null);
@@ -69,11 +46,6 @@ function App() {
     const term = e.currentTarget.value;
     setValue(term);
     handleData(term, setRSearchData);
-  };
-  //[FIXME]: 추후 Navigate로 이용할 함수입니다.
-  const handleSelectSearchTerm = (name: string) => {
-    setValue(name);
-    document.querySelector('form')?.submit();
   };
 
   useEffect(checkLocalStorageExpiration, []);
@@ -109,32 +81,7 @@ function App() {
               <ManageSearchRoundedIcon sx={{ fontSize: '40px' }} color="primary" />
             </IconButton>
           </form>
-          {isOpen && (
-            <SearchConditionBox>
-              <Box sx={{ mt: '1em', ml: '1em' }}>
-                <Typography variant="caption" color="#999DA1">
-                  추천 검색어
-                </Typography>
-              </Box>
-              {/* [FIXME] 값이 없거나 '' 일때로 수정 */}
-              {rSearchData ? (
-                <Box sx={{ overflowY: 'auto', maxHeight: '300px' }}>
-                  <ul>
-                    {rSearchData.map(list => (
-                      <ListBox key={list.id} onClick={() => handleSelectSearchTerm(list.name)}>
-                        <SearchIcon sx={{ ml: '1em' }} fontSize="small" />
-                        <span>{list.name}</span>
-                      </ListBox>
-                    ))}
-                  </ul>
-                </Box>
-              ) : (
-                <NoneSeachTermBox>
-                  <span>검색어 없음</span>
-                </NoneSeachTermBox>
-              )}
-            </SearchConditionBox>
-          )}
+          {isOpen && <SearchCondition rSearchData={rSearchData} setValue={setValue} />}
         </FormWrapper>
       </Wrapper>
     </Container>
