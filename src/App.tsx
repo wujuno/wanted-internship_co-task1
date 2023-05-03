@@ -7,9 +7,22 @@ import SearchIcon from '@mui/icons-material/Search';
 import { rSearchDataType } from './types/searchData';
 import { handleData } from './utils/searchData';
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 7rem;
+  align-items: center;
+  height: 100vh;
+`;
+
 const HeadTitle = styled.div`
   padding: 0 4rem;
   margin-bottom: 2rem;
+  text-align: center;
+  span {
+    font-size: 36px;
+    line-height: 50px;
+  }
 `;
 
 const FormWrapper = styled.div`
@@ -64,73 +77,64 @@ function App() {
   };
 
   return (
-    <Container
-      maxWidth="sm"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh'
-      }}
-    >
-      <HeadTitle>
-        <Typography variant="h4" align="center" lineHeight="50px">
-          국내 모든 임상 시험 검색하고 온라인으로 참여하기
-        </Typography>
-      </HeadTitle>
-      <FormWrapper>
-        <form onSubmit={() => alert('검색기능이 구현되지 않았습니다.')}>
-          <Input
-            disableUnderline={true}
-            sx={{ width: '370px' }}
-            placeholder="질환명을 입력해 주세요."
-            autoFocus
-            value={value}
-            onChange={handleInputChange}
-            onFocus={() => setIsOpen(true)}
-            onBlur={() => {
-              setTimeout(() => setIsOpen(false), 200);
-            }}
-          />
-          {value ? (
-            <IconButton onClick={() => setValue('')}>
-              <CancelIcon fontSize="small" />
-            </IconButton>
-          ) : (
-            <div style={{ width: '34.7px' }} />
-          )}
-          <IconButton type="submit">
-            <ManageSearchRoundedIcon sx={{ fontSize: '40px' }} color="primary" />
-          </IconButton>
-        </form>
-        {isOpen && (
-          <SearchConditionBox>
-            <Box sx={{ mt: '1em', ml: '1em' }}>
-              <Typography variant="caption" color="#999DA1">
-                추천 검색어
-              </Typography>
-            </Box>
-            {/* [FIXME] 값이 없거나 '' 일때로 수정 */}
-            {rSearchData ? (
-              <Box sx={{ overflowY: 'auto', maxHeight: '300px' }}>
-                <ul>
-                  {rSearchData.map(list => (
-                    <ListBox key={list.id} onClick={() => handleSelectSearchTerm(list.name)}>
-                      <SearchIcon sx={{ ml: '1em' }} fontSize="small" />
-                      <span>{list.name}</span>
-                    </ListBox>
-                  ))}
-                </ul>
-              </Box>
+    <Container maxWidth="sm">
+      <Wrapper>
+        <HeadTitle>
+          <span>국내 모든 임상 시험 검색하고 온라인으로 참여하기</span>
+        </HeadTitle>
+        <FormWrapper>
+          <form onSubmit={() => alert('검색기능이 구현되지 않았습니다.')}>
+            <Input
+              disableUnderline={true}
+              sx={{ width: '370px' }}
+              placeholder="질환명을 입력해 주세요."
+              autoFocus
+              value={value}
+              onChange={handleInputChange}
+              onFocus={() => setIsOpen(true)}
+              onBlur={() => {
+                setTimeout(() => setIsOpen(false), 200);
+              }}
+            />
+            {value ? (
+              <IconButton onClick={() => setValue('')}>
+                <CancelIcon fontSize="small" />
+              </IconButton>
             ) : (
-              <NoneSeachTermBox>
-                <span>검색어 없음</span>
-              </NoneSeachTermBox>
+              <div style={{ width: '34.7px' }} />
             )}
-          </SearchConditionBox>
-        )}
-      </FormWrapper>
+            <IconButton type="submit">
+              <ManageSearchRoundedIcon sx={{ fontSize: '40px' }} color="primary" />
+            </IconButton>
+          </form>
+          {isOpen && (
+            <SearchConditionBox>
+              <Box sx={{ mt: '1em', ml: '1em' }}>
+                <Typography variant="caption" color="#999DA1">
+                  추천 검색어
+                </Typography>
+              </Box>
+              {/* [FIXME] 값이 없거나 '' 일때로 수정 */}
+              {rSearchData ? (
+                <Box sx={{ overflowY: 'auto', maxHeight: '300px' }}>
+                  <ul>
+                    {rSearchData.map(list => (
+                      <ListBox key={list.id} onClick={() => handleSelectSearchTerm(list.name)}>
+                        <SearchIcon sx={{ ml: '1em' }} fontSize="small" />
+                        <span>{list.name}</span>
+                      </ListBox>
+                    ))}
+                  </ul>
+                </Box>
+              ) : (
+                <NoneSeachTermBox>
+                  <span>검색어 없음</span>
+                </NoneSeachTermBox>
+              )}
+            </SearchConditionBox>
+          )}
+        </FormWrapper>
+      </Wrapper>
     </Container>
   );
 }
