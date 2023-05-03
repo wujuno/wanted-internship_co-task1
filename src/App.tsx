@@ -1,10 +1,11 @@
 import styled from '@emotion/styled';
 import { Box, Container, IconButton, Input, Paper, Typography } from '@mui/material';
-import axios from 'axios';
 import { useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded';
 import SearchIcon from '@mui/icons-material/Search';
+import { rSearchDataType } from './types/searchData';
+import { handleData } from './utils/searchData';
 
 const HeadTitle = styled.div`
   padding: 0 4rem;
@@ -46,57 +47,17 @@ const NoneSeachTermBox = styled.div`
   padding: 8px 1rem;
 `;
 
-type rSearchDataType = {
-  name: string;
-  id: number;
-};
-
 function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [rSearchData, setRSearchData] = useState<rSearchDataType[] | null>(null);
   const [value, setValue] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.currentTarget.value);
-    handleData(e.currentTarget.value);
+    const term = e.currentTarget.value;
+    setValue(term);
+    handleData(term, setRSearchData);
   };
-  const handleData = (term: string) => {
-    const storedData = localStorage.getItem(term);
-    if (storedData) {
-      const { data } = JSON.parse(storedData);
-      setRSearchData(data);
-    } else {
-      getSearchDataAPI(term);
-    }
-  };
-  //[FIXME] : expirationInMinutes = 상수화
-  function setDataToLocalStorage(key: string, data: rSearchDataType[]) {
-    const expirationInMinutes = 60;
-    const expireAt = new Date().getTime() + expirationInMinutes * 60 * 1000;
-    const dataToStore = {
-      data,
-      expireAt
-    };
-    localStorage.setItem(key, JSON.stringify(dataToStore));
-  }
-  const getSearchDataAPI = (term: string) => {
-    axios
-      .get(`/api/v1/search-conditions/?name=${term}`)
-      .then(res => {
-        //[FIXME]숫자 상수화 하기
-        if (res.status === 200) {
-          const storedData = localStorage.getItem(term);
-          if (!storedData) {
-            if (res.data.length > 0) {
-              setRSearchData(res.data.slice(0, 7));
-              setDataToLocalStorage(term, res.data.slice(0, 7));
-            }
-            console.info('calling api');
-          }
-        }
-      })
-      .catch(err => console.log(err));
-  };
+  //[FIXME]: 추후 Navigate로 이용할 함수입니다.
   const handleSelectSearchTerm = (name: string) => {
     setValue(name);
     document.querySelector('form')?.submit();
