@@ -59,6 +59,7 @@ function App() {
   };
   const handleSelectSearchTerm = (name: string) => {
     setValue(name);
+    document.querySelector('form')?.submit();
   };
 
   return (
