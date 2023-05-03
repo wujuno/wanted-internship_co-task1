@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Paper } from '@mui/material';
 import { rSearchDataType } from '../types/searchData';
 import styled from '@emotion/styled';
@@ -11,7 +12,7 @@ const Wrapper = styled(Paper)`
   top: 5rem;
 `;
 const RecommendTitle = styled.div`
-  margin-top: 1rem;
+  margin: 1rem 0;
   margin-left: 1rem;
   span {
     font-size: 13px;
@@ -22,12 +23,14 @@ const RecommendDataWrapper = styled.div`
   overflow-y: auto;
   max-height: 300px;
 `;
-const ListBox = styled.div`
+const ListBox = styled.li<{ isSelected: boolean }>`
   display: flex;
   align-items: center;
   padding: 8px 0;
   gap: 10px;
   cursor: pointer;
+  background-color: ${({ isSelected }) =>
+    isSelected ? 'rgba(227, 226, 226, 0.3)' : 'transparent'};
   &:hover {
     background-color: rgba(227, 226, 226, 0.3);
   }
@@ -40,14 +43,16 @@ const NoneSeachTermBox = styled.div`
 type searchConditionProps = {
   rSearchData: rSearchDataType[] | null;
   setValue: (value: string) => void;
+  selectedIndex: number | null;
 };
 
-const searchCondition = ({ rSearchData, setValue }: searchConditionProps) => {
+const SearchCondition = ({ rSearchData, setValue, selectedIndex }: searchConditionProps) => {
   //[FIXME]: 추후 Navigate로 이용할 함수입니다.
   const handleSelectSearchTerm = (name: string) => {
     setValue(name);
     document.querySelector('form')?.submit();
   };
+
   return (
     <Wrapper>
       <RecommendTitle>
@@ -56,8 +61,13 @@ const searchCondition = ({ rSearchData, setValue }: searchConditionProps) => {
       {rSearchData ? (
         <RecommendDataWrapper>
           <ul>
-            {rSearchData.map(list => (
-              <ListBox key={list.id} onClick={() => handleSelectSearchTerm(list.name)}>
+            {rSearchData.map((list, index) => (
+              <ListBox
+                key={list.id}
+                onClick={() => handleSelectSearchTerm(list.name)}
+                tabIndex={index}
+                isSelected={index === selectedIndex}
+              >
                 <SearchIcon sx={{ ml: '1em' }} fontSize="small" />
                 <span>{list.name}</span>
               </ListBox>
@@ -73,4 +83,4 @@ const searchCondition = ({ rSearchData, setValue }: searchConditionProps) => {
   );
 };
 
-export default searchCondition;
+export default SearchCondition;

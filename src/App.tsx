@@ -6,6 +6,7 @@ import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded';
 import { rSearchDataType } from './types/searchData';
 import { checkLocalStorageExpiration, handleData } from './utils/searchData';
 import SearchCondition from './components/searchCondition';
+import { handleKeyDown } from './hooks/onkeyPress';
 
 const Wrapper = styled.div`
   display: flex;
@@ -41,10 +42,12 @@ function App() {
   const [isOpen, setIsOpen] = useState(false);
   const [rSearchData, setRSearchData] = useState<rSearchDataType[] | null>(null);
   const [value, setValue] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const term = e.currentTarget.value;
     setValue(term);
+    setSelectedIndex(null);
     handleData(term, setRSearchData);
   };
 
@@ -65,9 +68,12 @@ function App() {
               autoFocus
               value={value}
               onChange={handleInputChange}
+              onKeyDown={e =>
+                handleKeyDown(e, rSearchData, selectedIndex, setSelectedIndex, setValue)
+              }
               onFocus={() => setIsOpen(true)}
               onBlur={() => {
-                setTimeout(() => setIsOpen(false), 200);
+                setTimeout(() => setIsOpen(true), 200);
               }}
             />
             {value ? (
@@ -81,7 +87,13 @@ function App() {
               <ManageSearchRoundedIcon sx={{ fontSize: '40px' }} color="primary" />
             </IconButton>
           </form>
-          {isOpen && <SearchCondition rSearchData={rSearchData} setValue={setValue} />}
+          {isOpen && (
+            <SearchCondition
+              rSearchData={rSearchData}
+              setValue={setValue}
+              selectedIndex={selectedIndex}
+            />
+          )}
         </FormWrapper>
       </Wrapper>
     </Container>
