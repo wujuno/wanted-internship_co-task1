@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import { Box, Container, IconButton, Input, Paper, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CancelIcon from '@mui/icons-material/Cancel';
 import ManageSearchRoundedIcon from '@mui/icons-material/ManageSearchRounded';
 import SearchIcon from '@mui/icons-material/Search';
 import { rSearchDataType } from './types/searchData';
-import { handleData } from './utils/searchData';
+import { checkLocalStorageExpiration, handleData } from './utils/searchData';
 
 const Wrapper = styled.div`
   display: flex;
@@ -75,6 +75,8 @@ function App() {
     setValue(name);
     document.querySelector('form')?.submit();
   };
+
+  useEffect(checkLocalStorageExpiration, []);
 
   return (
     <Container maxWidth="sm">
